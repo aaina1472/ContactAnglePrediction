@@ -2,59 +2,65 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingRegressor
 
-# Define features
-numeric_features = ["Texture diameter", "Texture length", "Texture depth", "Texture pitch", "Roughness factor"]
-categorical_features = ["Texture shape"]
+# ----------------------
+# Load and prepare data
+# ----------------------
+st.set_page_config(page_title="Contact Angle Predictor", layout="centered")
 
-# Create the preprocessor
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('num', StandardScaler(), numeric_features),
-        ('cat', OneHotEncoder(), categorical_features)
-    ])
-
-# Load your dataset
 df = pd.read_csv("download.csv")
 df = df.dropna().reset_index(drop=True)
 
-# Split into features and target
-X = df.drop(columns=["Contact angle"])
+# Features and target
+numeric_features = ["Texture diameter", "Texture length", "Texture depth", "Texture pitch", "Roughness factor"]
+X = df[numeric_features]
 y = df["Contact angle"]
 
-# Define and train the model
+# Preprocessing
+preprocessor = ColumnTransformer(
+    transformers=[('num', StandardScaler(), numeric_features)]
+)
+
+# Model pipeline
 model_pipeline = Pipeline([
     ("preprocessor", preprocessor),
     ("model", GradientBoostingRegressor(random_state=42))
 ])
+
 model_pipeline.fit(X, y)
 
+# ----------------------
 # Streamlit UI
-st.title("Contact Angle Prediction App 🧪")
+# ----------------------
+st.title("🔬 Contact Angle Predictor")
+st.markdown("Enter texture parameters below to predict the **contact angle** using a trained Gradient Boosting model.")
 
-st.write("Enter the following texture parameters to predict the contact angle:")
+# Input UI layout
+col1, col2 = st.columns(2)
 
-# Input form
-diameter = st.slider("Texture Diameter", 10.0, 50.0, 25.0)
-length = st.slider("Texture Length", 10.0, 50.0, 25.0)
-depth = st.slider("Texture Depth", 1.0, 10.0, 5.0)
-pitch = st.slider("Texture Pitch", 10.0, 50.0, 25.0)
-roughness = st.slider("Roughness Factor", 1.0, 2.0, 1.5)
-shape = st.selectbox("Texture Shape", df["Texture shape"].dropna().unique())
+with col1:
+    diameter = st.number_input("🔵 Texture Diameter (µm)", min_value=10.0, max_value=50.0, value=25.0)
+    depth = st.number_input("🔵 Texture Depth (µm)", min_value=1.0, max_value=10.0, value=5.0)
+    roughness = st.number_input("🔵 Roughness Factor", min_value=1.0, max_value=2.0, value=1.5, step=0.01)
 
-# Predict button
-if st.button("Predict Contact Angle"):
+with col2:
+    length = st.number_input("🔵 Texture Length (µm)", min_value=10.0, max_value=50.0, value=25.0)
+    pitch = st.number_input("🔵 Texture Pitch (µm)", min_value=10.0, max_value=50.0, value=25.0)
+
+# Prediction
+st.markdown("---")
+if st.button("📐 Predict Contact Angle"):
     input_df = pd.DataFrame([{
         "Texture diameter": diameter,
         "Texture length": length,
         "Texture depth": depth,
         "Texture pitch": pitch,
-        "Roughness factor": roughness,
-        "Texture shape": shape
+        "Roughness factor": roughness
     }])
     
     prediction = model_pipeline.predict(input_df)[0]
-    st.success(f"Predicted Contact Angle: {prediction:.2f}°")
+    st.success(f"🧪 Predicted Contact Angle: **{prediction:.2f}°**")
+
