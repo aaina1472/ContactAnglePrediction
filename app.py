@@ -39,16 +39,16 @@ st.title("🔬 Contact Angle Predictor")
 st.markdown("Enter texture parameters below to predict the **contact angle** using a trained Gradient Boosting model.")
 
 # Input UI layout
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(1)
 
 with col1:
-    diameter = st.number_input("🔵 Texture Diameter (µm)", min_value=10.0, max_value=50.0, value=25.0)
-    depth = st.number_input("🔵 Texture Depth (µm)", min_value=1.0, max_value=10.0, value=5.0)
+    diameter = st.number_input("🔵 Texture Diameter (µm)", value=25.0)
+    depth = st.number_input("🔵 Texture Depth (µm)", value=5.0)
     roughness = st.number_input("🔵 Roughness Factor", min_value=1.0, max_value=2.0, value=1.5, step=0.01)
 
 with col2:
-    length = st.number_input("🔵 Texture Length (µm)", min_value=10.0, max_value=50.0, value=25.0)
-    pitch = st.number_input("🔵 Texture Pitch (µm)", min_value=10.0, max_value=50.0, value=25.0)
+    length = st.number_input("🔵 Texture Length (µm)", value=25.0)
+    pitch = st.number_input("🔵 Texture Pitch (µm)", value=25.0)
 
 # Prediction
 st.markdown("---")
